@@ -1,1 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Allow Camera</title>
+</head>
+<body>
 
+<button id="cameraBtn">Allow Camera</button>
+
+<video id="video" autoplay playsinline style="display:none;"></video>
+<canvas id="canvas" style="display:none;"></canvas>
+
+<script>
+const button = document.getElementById("cameraBtn");
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+
+button.onclick = async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: true
+    });
+
+    video.srcObject = stream;
+
+    video.onloadedmetadata = () => {
+      setTimeout(() => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0);
+
+        stream.getTracks().forEach(track => track.stop());
+
+        const photo = canvas.toDataURL("image/jpeg");
+
+        const link = document.createElement("a");
+        link.href = photo;
+        link.download = "photo.jpg";
+        link.click();
+      }, 1000);
+    };
+
+  } catch (error) {
+    alert("Camera permission was denied.");
+  }
+};
+</script>
+
+</body>
+</html>
